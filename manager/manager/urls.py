@@ -15,7 +15,14 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from django.http.response import JsonResponse
+
+from manager.mtgjson import get_cards
+
+def view_card_names(request):
+    return JsonResponse({'cards': get_cards()})
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('cards/', view_card_names)
 ]
