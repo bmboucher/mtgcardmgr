@@ -1,4 +1,3 @@
-from optparse import Option
 from zipfile import ZipFile
 from pathlib import Path
 import requests
