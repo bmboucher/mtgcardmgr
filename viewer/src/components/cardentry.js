@@ -7,13 +7,14 @@ class CardEntry extends Component {
         this.state = {
             setCode: null,
             number: null,
-            options: []
+            options: [],
+            selectedIndex: 0
         };
     }
 
     onKeyDown = (event) => {
         console.log(event);
-        let {setCode, number} = this.state;
+        let {setCode, number, options, selectedIndex} = this.state;
         if (/Key[A-Z]/.test(event.code) && (!setCode || setCode.length < 3)) {
             setCode = setCode || '';
             setCode += event.key.toUpperCase();
@@ -22,10 +23,14 @@ class CardEntry extends Component {
             number = number || '';
             number += event.key;
             this.setState({number});
-        } else if (event.code == 'Backspace') {
+        } else if (event.code === 'Backspace') {
             setCode = null;
             number = null;
-            this.setState({setCode, number});
+            this.setState({setCode, number, selectedIndex: 0});
+        } else if (event.code === 'ArrowUp' && selectedIndex > 0) {
+            this.setState({selectedIndex: selectedIndex - 1})
+        } else if (event.code === 'ArrowDown' && selectedIndex < options.length - 1) {
+            this.setState({selectedIndex: selectedIndex + 1})
         } else {
             return;
         }
@@ -37,15 +42,22 @@ class CardEntry extends Component {
             queryParams.number = number.length < 3 ? number + '*' : number;
         }
         const queryStr=Object.entries(queryParams).map(([key, value]) => `${key}=${value}`).join('&');
-        get(`/cards/?${queryStr}`).then(res => this.setState({options: res.data.cards}));
+        get(`/cards/?${queryStr}`).then(res => {
+            const options = res.data.cards;
+            let selectedIndex = this.state.selectedIndex;
+            if (selectedIndex >= options.length) {
+                selectedIndex = 0;
+            }
+            this.setState({options, selectedIndex});
+        });
     };
 
     render() {
-        const {setCode, number, options} = this.state;
+        const {setCode, number, options, selectedIndex} = this.state;
         const text = `${setCode}/${number}`
         let img = undefined;
-        if (options.length > 0) {
-            const scryfallId = options[0].scryfallId;
+        if (options.length > selectedIndex) {
+            const scryfallId = options[selectedIndex].scryfallId;
             const img_url = `https://c1.scryfall.com/file/scryfall-cards/large/front/${scryfallId[0]}/${scryfallId[1]}/${scryfallId}.jpg`
             img = <img src={img_url} alt={options[0].name} style={{height: '500px'}}/>
         }
@@ -53,7 +65,7 @@ class CardEntry extends Component {
         return <div>
         <input onKeyDown={this.onKeyDown} tabIndex={0} readOnly={true} value={text}></input>
         <ul>
-            {options.map(opt => <li key={opt.uuid}>{opt.name}</li>)}
+            {options.map((opt, index) => <li key={opt.uuid}>{index === selectedIndex ? <em>{opt.name}</em> : opt.name}</li>)}
         </ul>
         {img}
         </div>
