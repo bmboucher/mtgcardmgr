@@ -42,5 +42,6 @@ def cards(request: HttpRequest):
             "number": card.number,
             "cardKingdomId": card.cardkingdomid,
             "cardKingdomFoilId": card.cardkingdomfoilid,
-            "cardKingdomEtchedId": card.cardkingdometchedid
+            "cardKingdomEtchedId": card.cardkingdometchedid,
+            "uuid": card.uuid
         } for card in queryset]})
