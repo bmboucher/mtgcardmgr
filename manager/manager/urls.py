@@ -15,15 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.http.request import HttpRequest
-from django.http.response import JsonResponse
 
-from manager.mtgjson import get_cards
-
-def view_card_names(request: HttpRequest):
-    return JsonResponse({'cards': get_cards()})
+from collection.views import sets, cards
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('cards/', view_card_names)
+    path('cards/', cards),
+    path('sets/', sets)
 ]
